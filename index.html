@@ -1,0 +1,275 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Sprinkler Display</title>
+    
+    <!-- Import font from google -->
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Gruppo" />
+    
+    <!-- Project CSS -->
+    <link href="se.css" rel="stylesheet">
+    
+     <!-- Bootstrap Core CSS -->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap/css/thumbnail-gallery.css" rel="stylesheet">
+    
+    <!-- Weather API -->
+    <script src="https://s3-us-west-2.amazonaws.com/reallysimpleweather/reallysimpleweather-1.1.0.min.js"></script>
+    
+   
+</head>
+
+<body onLoad = "live(); getTime();">
+    
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Sprinkler Manager</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="#" onclick="Off();">Emergency Off</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="On();">Turn On</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="live();">Live Mode</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="randomize();">Simulation Mode</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="scheduler();">Scheduler</a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" id="status" style="text-align: right;">Guest</a>           
+                        <!--//change: added guest that changes to user's name when loggedin -->
+                    </li>                                           
+                        <!--//still need to float it to the right.-->
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    
+    
+    <!-- Page Content -->
+    <div class="container">
+
+        
+        <div id ="showScheduler" style="display:none;">
+        
+        <div class="container" style="margin-bottom:5px;">
+            <div class="row">
+                <center>
+                    <!--form method="post" action="process.php"-->
+                    <form onsubmit="return false">
+                        <div class = "row">
+                            <div class="col-lg-6 col-md-6 col-xs-6 text-center">
+                                <p  style="text-align: right">TimeStart : <input type="time" name="TimeStart" id="TimeStart" class="box"/><br/></p> </div>
+                            <div class="col-lg-6 col-md-6 col-xs-6 text-center">
+                                <p  style="text-align: left">TimeEnd :   <input type="time" name="TimeEnd" id="TimeEnd" class="box"/><br/></p></div>
+                        </div>
+                        <div style="margin-top: 10px"></div>
+                        <div class = "row">
+                        <p style =" word-spacing:10px">Day :  
+                                    <input type="radio" name="Day" id="Sunday" value="Sunday" style="margin-right: 2px"/>Sunday
+                                    <input type="radio" name="Day" id="Monday" value="Monday" style="margin-right: 2px"/>Monday
+                                    <input type="radio" name="Day" id="Tuesday" value="Tuesday" style="margin-right: 2px"/>Tuesday
+                                    <input type="radio" name="Day" id="Wednesday" value="Wednesday" style="margin-right: 2px"/>Wednesday
+                                    <input type="radio" name="Day" id="Thursday" value="Thursday" style="margin-right: 2px"/>Thursday
+                                    <input type="radio" name="Day" id="Friday" value="Friday" style="margin-right: 2px"/>Friday
+                                    <input type="radio" name="Day" id="Saturday" value="Saturday" style="margin-right: 2px"/>Saturday<br/></p>
+                                    <!--input type="submit" value="Submit" onClick="return empty(); setSchedule(); " style="margin-top: 10px"/></p-->
+                                    <input type="submit" value="Submit" onclick="setSchedule();" style="margin-top: 10px"/>
+                            
+                        </div>
+                        
+                    </form>
+                     
+                </center>
+            </div>
+        </div>
+            
+       
+            
+            
+    </div>
+        
+          <div id ="showScheduled" style="display:none;">
+              <center><p>Sprinkler Schedule:</p></center>
+             <div class ="row"> <div class = "weatherRow">
+                <div class="col-lg-2 col-md-2 col-xs-6 thumb">
+                  <div class="weatherText">
+                    <p class="form-control" style="display: inline-block" id="start">Start :</p></div>
+                
+                </div>
+                <div class="col-lg-2 col-md-2 col-xs-6 thumb">
+                    
+                    <p class="form-control" id="startTime"  style="display: inline-block"></p>
+                </div>
+                <div class="col-lg-2 col-md-2 col-xs-6 thumb">
+                    
+                    <p class="form-control" id="end"  style="display: inline-block">End: </p>
+                </div>
+                  <div class="col-lg-2 col-md-2 col-xs-6 thumb">
+                    
+                    <p class="form-control" id="endTime"  style="display: inline-block"></p>
+                </div>
+                <!--div class="col-lg-2 col-md-2 col-xs-6 thumb">
+                    
+                    <p class="form-control" id="daySet"  style="display: inline-block">Day: </p>
+                </div-->
+                 <div class="col-lg-2 col-md-2 col-xs-6 thumb">
+                
+                    <p class="form-control" style="display: inline-block" id="daySelected"></p>
+                </div>
+                 <div class="col-lg-2 col-md-2 col-xs-6 thumb">
+                     <button class="btn btn-primary btn-block" onclick="removeSchedule();">Remove</button>
+                                </div>
+                </div></div></div>
+        
+        
+        
+        <center><p>Weather Conditions:</p></center>
+        <div class ="row"> <div class = "weatherRow">
+         <div class="col-lg-2 col-md-2 col-xs-6 thumb">
+                  <div class="weatherText">
+                    <p class="form-control" style="display: inline-block" id="weatherType">Live Weather:</p></div>
+                
+                </div>
+                <div class="col-lg-4 col-md-4 col-xs-6 thumb">
+                    
+                    <p class="form-control" id="WeatherDisplay"  style="display: inline-block"></p>
+                </div>
+            <div class="col-lg-4 col-md-4 col-xs-6 thumb">
+                    
+                    <p class="form-control" id="WeatherDisplay2"  style="display: inline-block"></p>
+                </div>
+             <div class="col-lg-2 col-md-2 col-xs-6 thumb">
+                <div class="time">
+                    <p class="form-control" style="display: inline-block" id="displayTime"></p></div>
+                </div>
+            </div></div>
+        
+        <div class="imgMargin">
+        <div class="row">
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler" onclick="change();"><p>1</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler2" onclick="change2();"><p>2</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler3" onclick="change3();"><p>3</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler4" onclick="change4();"><p>4</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler5" onclick="change5();"><p>5</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler6" onclick="change6();"><p>6</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler7" onclick="change7();"><p>7</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler8" onclick="change8();"><p>7</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler9" onclick="change9();"><p>9</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler10" onclick="change10();"><p>10</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler11" onclick="change11();"><p>11</p>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb">
+                <a class="thumbnail" href="#">
+                    <img class="img-responsive" src="img/r_sprinkler2.png" alt="img" id="sprinkler12" onclick="change12();"><p>12</p>
+                </a>
+            </div>
+        </div>
+        </div>
+        
+        
+      
+        
+        </div>
+
+    
+    
+    <!-- jQuery -->
+    <script src="bootstrap/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    
+    <!-- Project JavaScript -->
+    <script src="se.js"></script>
+    
+    <!--Facebook Javascript-->
+    <script src="fb_script.js"></script><!--change: facebook javascript-->
+    
+  
+    
+</body>
+
+ 
+<footer>
+    <div class="row">
+    <div class="col-lg-6 col-md-6 col-xs-6 text-center" style="text-align: right">
+        <div class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" onclick"location.reload();"></div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-xs-6 text-center"  style="text-align: left">
+        <img src="img/google-plus.png" class="gplus">
+    </div>
+        </div>
+    <div class="text-center" style="margin-top: 10px; color: white;">
+        <a href="https://icons8.com">Icon pack by Icons8</a>
+    </div>
+</footer>
